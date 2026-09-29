@@ -9,6 +9,7 @@ export interface Video {
     createdAt: string;
     avatar:string;
     username:string;
-    CommentCount:number;
+    commentCount:number;
     likeCount:number;
+    isLiked:boolean;
 }

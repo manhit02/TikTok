@@ -9,7 +9,7 @@ public interface IVideoService
     Task<VideoDto> CreateAsync(CreateVideoRequest request, Guid userId);
     Task UpdateAsync(Guid id, UpdateVideoRequest request, Guid userId);
     Task DeleteAsync(Guid id, Guid userId);
-    Task IncrementViewsAsync(Guid id);
-    Task<List<VideoDto>> GetFeedAsync(int page, int pageSize);
+    Task<int> IncrementViewsAsync(Guid id);
+    Task<List<VideoDto>> GetFeedAsync(Guid? currentUserId, int page, int limit);
 
 }

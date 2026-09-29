@@ -119,14 +119,14 @@ public class VideoService : IVideoService
         await _videoRepository.DeleteAsync(video);
     }
 
-    public async Task IncrementViewsAsync(Guid id)
+    public async Task<int> IncrementViewsAsync(Guid id)
     {
-        await _videoRepository.IncrementViewsAsync(id);
+        return await _videoRepository.IncrementViewsAsync(id);
     }
-    public async Task<List<VideoDto>> GetFeedAsync(int page, int limit)
+    public async Task<List<VideoDto>> GetFeedAsync(Guid? currentUserId, int page, int limit)
     {
 
 
-        return await _videoRepository.GetFeedAsync(page, limit);
+        return await _videoRepository.GetFeedAsync(currentUserId, page, limit);
     }
 }

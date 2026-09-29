@@ -22,11 +22,13 @@ interface Comment {
 interface CommentSectionProps {
   videoId: string;
   onClose: () => void;
+  onCommentCountChange: (count: number) => void;
 }
 
 export default function CommentSection({
   videoId,
   onClose,
+  onCommentCountChange,
 }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [content, setContent] = useState("");
@@ -56,7 +58,7 @@ export default function CommentSection({
       const res = await createComment(videoId, content);
 
       setComments((prev) => [res.data.data, ...prev]);
-
+      onCommentCountChange(comments.length + 1);
       setContent("");
     } catch (error) {
       console.log("Lỗi comment:", error);
@@ -73,10 +75,16 @@ export default function CommentSection({
     }
     if (action === "delete") {
       try {
-        await deleteComment(commentId);
-        setComments((prev) =>
-          prev.filter((comment) => comment.id !== commentId),
-        );
+        await deleteComment(videoId, commentId);
+        setComments((prev) => {
+          const newComments = prev.filter(
+            (comment) => comment.id !== commentId,
+          );
+
+          onCommentCountChange(newComments.length);
+
+          return newComments;
+        });
       } catch (error) {
         console.log("Lỗi xóa comment:", error);
       }
@@ -86,7 +94,7 @@ export default function CommentSection({
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
-      await updateComment(commentId, contentEdit);
+      await updateComment(videoId, commentId, contentEdit);
       setComments((prev) =>
         prev.map((comment) =>
           comment.id === commentId

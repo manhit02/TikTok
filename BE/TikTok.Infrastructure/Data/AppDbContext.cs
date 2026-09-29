@@ -15,6 +15,8 @@ public class AppDbContext : DbContext
     public DbSet<VideoLike> VideoLikes => Set<VideoLike>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Follow> Follows => Set<Follow>();
+    public DbSet<Profile> Profile => Set<Profile>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<RefreshToken>()
@@ -42,13 +44,6 @@ public class AppDbContext : DbContext
             .WithMany(x => x.Comments)
             .HasForeignKey(x => x.VideoId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Comment>()
-            .HasOne(x => x.Video)
-            .WithMany()
-            .HasForeignKey(x => x.VideoId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         modelBuilder.Entity<Comment>()
             .HasOne(x => x.User)
             .WithMany()
@@ -69,6 +64,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Follow>()
             .HasIndex(x => new { x.FollowerId, x.FollowingId })
             .IsUnique();
+        modelBuilder.Entity<Profile>()
+            .HasOne(x => x.User)
+            .WithOne()
+            .HasForeignKey<Profile>(x => x.UserId);
 
     }
 }

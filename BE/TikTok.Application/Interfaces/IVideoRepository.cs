@@ -10,7 +10,7 @@ public interface IVideoRepository
     Task AddAsync(Video video);
     Task UpdateAsync(Video video);
     Task DeleteAsync(Video video);
-    Task IncrementViewsAsync(Guid id);
-    Task<List<VideoDto>> GetFeedAsync(int page, int limit);
+    Task<int> IncrementViewsAsync(Guid id);
+    Task<List<VideoDto>> GetFeedAsync(Guid? currentUserId, int page, int limit);
 
 }

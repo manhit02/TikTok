@@ -45,19 +45,20 @@ public class VideoRepository : IVideoRepository
         _context.Videos.Remove(video);
         await _context.SaveChangesAsync();
     }
-    public async Task IncrementViewsAsync(Guid id)
+    public async Task<int> IncrementViewsAsync(Guid id)
     {
         var video = await _context.Videos
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (video == null)
-            return;
+            throw new Exception("Video không tồn tại");
 
         video.Views++;
 
         await _context.SaveChangesAsync();
+        return video.Views;
     }
-    public async Task<List<VideoDto>> GetFeedAsync(int page, int limit)
+    public async Task<List<VideoDto>> GetFeedAsync(Guid? currentUserId, int page, int limit)
     {
         return await _context.Videos
 
@@ -78,7 +79,9 @@ public class VideoRepository : IVideoRepository
                 CreatedAt = x.CreatedAt,
 
                 LikeCount = x.VideoLikes.Count(),
-                CommentCount = x.Comments.Count()
+                CommentCount = x.Comments.Count(),
+                IsLiked = currentUserId.HasValue &&
+                  x.VideoLikes.Any(l => l.UserId == currentUserId.Value)
             })
             .ToListAsync();
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TikTok.Application.DTOs.Video;
 using TikTok.Application.Interfaces;
+using TikTok.Domain.Entities;
 
 namespace TikTok.API.Controllers;
 
@@ -40,8 +41,17 @@ public class VideoController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int limit = 10)
     {
-        var videos = await _videoService.GetFeedAsync(page, limit);
 
+        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        Guid? currentUserId = null;
+        if (Guid.TryParse(claim, out var userId))
+            currentUserId = userId;
+
+        var videos = await _videoService.GetFeedAsync(
+            currentUserId,
+            page,
+            limit
+        );
         return Ok(new
         {
             success = true,
@@ -158,11 +168,13 @@ public class VideoController : ControllerBase
     [HttpPost("{id}/view")]
     public async Task<IActionResult> View(Guid id)
     {
-        await _videoService.IncrementViewsAsync(id);
+        var views = await _videoService.IncrementViewsAsync(id);
 
         return Ok(new
         {
-            success = true
+            success = true,
+            views
+
         });
     }
     [Authorize]

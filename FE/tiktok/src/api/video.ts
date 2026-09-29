@@ -29,14 +29,14 @@ export const createComment = (
         content,
     });
 };
-export const deleteComment = (commentId: string) => {
-    return api.delete(`/videos/${commentId}/comments`);
+export const deleteComment = (videoId :string,commentId: string) => {
+    return api.delete(`/videos/${videoId}/comments/${commentId}`);
 };
 export const viewVideo = (videoId: string) => {
     return api.post(`/videos/${videoId}/view`);
 };
-export const updateComment = (commentId: string, content: string) => {
-    return api.put(`/videos/${commentId}/comments`, { content });
+export const updateComment = (videoId:String,commentId: string, content: string) => {
+    return api.put(`/videos/${videoId}/comments/${commentId}`, { content });
 };
 export const getUserVideos = (userId: string,page=1,limit=10) => {
     return api.get(`/videos/user/${userId}`, {params: {page, limit}});

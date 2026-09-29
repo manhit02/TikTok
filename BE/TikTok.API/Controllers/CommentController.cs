@@ -83,4 +83,34 @@ public class CommentController : ControllerBase
             });
         }
     }
+    [Authorize]
+    [HttpPut("{commentId}")]
+    public async Task<IActionResult> Update(
+        Guid commentId, UpdateCommentRequest request)
+    {
+        var userId = Guid.Parse(
+  User.FindFirstValue(ClaimTypes.NameIdentifier)!
+  );
+        try
+        {
+            await _commentService.UpdateAsync(
+                commentId,
+                userId,
+                request
+            );
+            return Ok(new
+            {
+                success = true,
+                message = "Sửa bình luận thành công"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
 }

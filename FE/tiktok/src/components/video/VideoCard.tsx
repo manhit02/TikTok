@@ -19,7 +19,7 @@ export default function VideoCard({
   followingUsers,
   onFollowChange,
 }: VideoCardProps) {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(video.isLiked);
   const [showComments, setShowComments] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const user = useSelector((state: RootState) => state.auth.user);
@@ -27,15 +27,16 @@ export default function VideoCard({
   const viewedRef = useRef(false);
   const [viewCount, setViewCount] = useState(video.views);
   const [isPlay, setIsPlay] = useState(false);
+  const [countComments, setCountComments] = useState(video.commentCount);
   useEffect(() => {
-    setLiked(video.liked);
-  }, [user, video.liked]);
+    setLiked(video.isLiked);
+    setCountComments(video.commentCount);
+  }, [user, video.isLiked, video.commentCount]);
   const handleLike = async () => {
     try {
       await likeVideo(video.id).then((res) => {
         setLiked(res.data.liked);
         setLikeCount(res.data.likeCount);
-        console.log(res.data);
       });
     } catch (error) {
       console.log("Lỗi like:", error);
@@ -55,6 +56,7 @@ export default function VideoCard({
           viewVideo(video.id).then((res) => {
             viewedRef.current = true;
             setViewCount(res.data.views);
+            console.log(res.data.views);
           });
         } else {
           element.pause();
@@ -107,15 +109,15 @@ export default function VideoCard({
         )}
         {/* Thông tin */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-5 text-white">
-          <Link
-            href={
-              user?.id === video.userId
-                ? "/profile/me"
-                : `/profile/${video.userId}`
-            }
-            className="flex items-center gap-3"
-          >
-            <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-300">
+          <div className="flex items-center gap-3">
+            <Link
+              href={
+                user?.id === video.userId
+                  ? "/profile/me"
+                  : `/profile/${video.userId}`
+              }
+              className="h-10 w-10 overflow-hidden rounded-full bg-gray-300"
+            >
               {video.avatar && (
                 <img
                   src={video.avatar}
@@ -123,7 +125,7 @@ export default function VideoCard({
                   className="h-full w-full object-cover"
                 />
               )}
-            </div>
+            </Link>
 
             <span className="font-bold">@{video.username || "Unknown"}</span>
             {user?.id !== video.userId && (
@@ -131,7 +133,7 @@ export default function VideoCard({
                 {followingUsers ? "✔️" : "➕"}
               </button>
             )}
-          </Link>
+          </div>
 
           <p className="mt-3">{video.caption}</p>
         </div>
@@ -140,6 +142,7 @@ export default function VideoCard({
         <CommentSection
           videoId={video.id}
           onClose={() => setShowComments(false)}
+          onCommentCountChange={setCountComments}
         />
       )}
       {/* Actions */}
@@ -159,7 +162,7 @@ export default function VideoCard({
           >
             💬
           </div>
-          <span className="text-sm">{video.comments}</span>
+          <span className="text-sm">{countComments}</span>
         </div>
 
         <div className="text-center">

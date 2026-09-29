@@ -76,4 +76,22 @@ public class CommentService : ICommentService
 
         await _commentRepository.DeleteAsync(comment);
     }
+    public async Task UpdateAsync(
+     Guid commentId,
+     Guid userId,
+     UpdateCommentRequest request)
+    {
+        var comment = await _commentRepository
+            .GetByIdAsync(commentId);
+
+        if (comment == null)
+            throw new Exception("Comment không tồn tại");
+
+        if (comment.UserId != userId)
+            throw new Exception("Bạn không có quyền sửa comment này");
+
+        comment.Content = request.Content;
+
+        await _commentRepository.UpdateAsync(comment);
+    }
 }

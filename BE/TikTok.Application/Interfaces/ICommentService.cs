@@ -16,4 +16,8 @@ public interface ICommentService
         Guid commentId,
         Guid userId
     );
+    Task UpdateAsync(
+     Guid commentId,
+     Guid userId,
+     UpdateCommentRequest request);
 }
