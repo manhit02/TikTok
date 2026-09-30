@@ -14,10 +14,30 @@ public class VideoRepository : IVideoRepository
         _context = context;
     }
 
-    public async Task<List<Video>> GetAllAsync()
+    public async Task<List<VideoDto>> GetAllAsync(int page, int limit)
     {
         return await _context.Videos
             .Include(x => x.User)
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .Select(x => new VideoDto
+            {
+                Id = x.Id,
+                VideoUrl = x.VideoUrl,
+                Caption = x.Caption,
+                Views = x.Views,
+
+                UserId = x.UserId,
+                Username = x.User.Username,
+                Avatar = x.User.Avatar,
+
+                CreatedAt = x.CreatedAt,
+
+                LikeCount = x.VideoLikes.Count(),
+                CommentCount = x.Comments.Count(),
+
+            })
             .ToListAsync();
     }
 
@@ -85,5 +105,30 @@ public class VideoRepository : IVideoRepository
             })
             .ToListAsync();
     }
+    public async Task<List<VideoDto>> GetVideosByUserIdAsync(Guid userId, int page, int limit)
+    {
+        return await _context.Videos
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .Select(x => new VideoDto
+            {
+                Id = x.Id,
+                VideoUrl = x.VideoUrl,
+                Caption = x.Caption,
+                Views = x.Views,
 
+                UserId = x.UserId,
+                Username = x.User.Username,
+                Avatar = x.User.Avatar,
+
+                CreatedAt = x.CreatedAt,
+
+                LikeCount = x.VideoLikes.Count(),
+                CommentCount = x.Comments.Count(),
+
+            })
+            .ToListAsync();
+    }
 }

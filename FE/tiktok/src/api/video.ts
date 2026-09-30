@@ -1,6 +1,17 @@
 import api from "@/lib/axios";
 import { ApiResponse } from "@/types/apiType";
 import { Video }from "@/types/video";
+export const getAllVideos= (page = 1, limit = 10) => {
+    return api.get<{
+        success: boolean;
+        data: Video[];
+    }>("/videos", {
+        params: {
+            page,
+            limit,
+        },
+    });
+};
 
 export const getFeed = (page = 1, limit = 10) => {
     return api.get<{
@@ -38,9 +49,7 @@ export const viewVideo = (videoId: string) => {
 export const updateComment = (videoId:String,commentId: string, content: string) => {
     return api.put(`/videos/${videoId}/comments/${commentId}`, { content });
 };
-export const getUserVideos = (userId: string,page=1,limit=10) => {
-    return api.get(`/videos/user/${userId}`, {params: {page, limit}});
-};
+
 export const searchVideos=(query:string,page=1,limit=10)=>{
     return api.get<ApiResponse<Video[]>>(`/videos/search`, {params: {page, limit,q:query}});
 };

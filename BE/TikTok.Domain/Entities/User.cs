@@ -14,5 +14,7 @@ public class User
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-
+    public ICollection<Follow> Followers { get; set; } = [];
+    public ICollection<Follow> Following { get; set; } = [];
+    public Profile? Profile { get; set; }
 }

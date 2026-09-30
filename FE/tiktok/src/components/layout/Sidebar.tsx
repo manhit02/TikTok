@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { useRouter } from "next/navigation";
 const menus = [
   {
     name: "For You",
@@ -38,11 +38,11 @@ const menus = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-
+  const router = useRouter();
   return (
     <aside className="fixed left-0 top-0 h-screen w-60 border-r bg-white dark:bg-black">
-      <div className="p-5">
-        <h1 className="text-2xl font-bold">TikTok</h1>
+      <div className="p-5" onClick={() => router.push(`/`)}>
+        <h1 className="text-2xl font-bold cursor-pointer">TikTok</h1>
       </div>
 
       <nav className="space-y-1 px-3">

@@ -27,7 +27,7 @@ export default function LogoutButton() {
 
       dispatch(clearAuth());
 
-      router.replace("/login");
+      router.back();
     }
   };
 

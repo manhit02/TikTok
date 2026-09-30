@@ -11,4 +11,5 @@ public class Follow
 
     public User Follower { get; set; } = null!;
     public User Following { get; set; } = null!;
+
 }

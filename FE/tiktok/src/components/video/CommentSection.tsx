@@ -11,6 +11,7 @@ import {
 
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 interface Comment {
   id: string;
   content: string;
@@ -34,8 +35,9 @@ export default function CommentSection({
   const [content, setContent] = useState("");
   const [contentEdit, setContentEdit] = useState("");
   const [idComment, setIdComment] = useState("");
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, isLoggedIn } = useSelector((state: RootState) => state.auth);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -172,23 +174,34 @@ export default function CommentSection({
           </>
         ) : (
           <>
-            <input
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleComment();
-                }
-              }}
-              placeholder="Viết bình luận..."
-              className="min-w-0 flex-1 rounded-lg border px-3 py-2 outline-none"
-            />
-            <button
-              onClick={handleComment}
-              className="rounded-lg bg-black px-3 py-2 text-white"
-            >
-              Gửi
-            </button>
+            {isLoggedIn ? (
+              <>
+                <input
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleComment();
+                    }
+                  }}
+                  placeholder="Viết bình luận..."
+                  className="min-w-0 flex-1 rounded-lg border px-3 py-2 outline-none"
+                />
+                <button
+                  onClick={handleComment}
+                  className="rounded-lg bg-black px-3 py-2 text-white"
+                >
+                  Gửi
+                </button>
+              </>
+            ) : (
+              <button
+                className="cursor-pointer"
+                onClick={() => router.push("/login")}
+              >
+                Đăng nhập để bình luận
+              </button>
+            )}
           </>
         )}
       </div>

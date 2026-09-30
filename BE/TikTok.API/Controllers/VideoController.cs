@@ -21,14 +21,11 @@ public class VideoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1,
+        [FromQuery] int limit = 10)
     {
-        Guid? userId = null;
-        if (User.Identity?.IsAuthenticated == true)
-        {
-            userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        }
-        var videos = await _videoService.GetAllAsync(userId);
+
+        var videos = await _videoService.GetAllAsync(page, limit);
 
         return Ok(new
         {
@@ -196,4 +193,7 @@ public class VideoController : ControllerBase
             likeCount = result.LikeCount
         });
     }
+    // [HttpPost("search")]
+
+
 }

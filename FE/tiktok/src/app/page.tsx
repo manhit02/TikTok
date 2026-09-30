@@ -1,43 +1,53 @@
 "use client";
 
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { login } from "@/api/auth";
-import { setUser } from "@/store/authSlice";
-import type { AppDispatch } from "@/store/store";
-import Link from "next/link";
+import { getAllVideos } from "@/api/video";
+import Header from "@/components/layout/Header";
+import Sidebar from "@/components/layout/Sidebar";
+import VideoCard from "@/components/video/VideoCard";
+import { Video } from "@/types/video";
+import { useEffect, useState } from "react";
 
-export default function Home() {
-  const { user, isLoggedIn } = useSelector((state: RootState) => state.auth);
-  const dispatch = useDispatch<AppDispatch>();
+export default function MainLayout() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [followingUsers, setFollowingUsers] = useState<string[]>([]);
 
-  const handleLogin = async () => {
-    try {
-      const res = await login({
-        email: "manh@gmail.com",
-        password: "123456",
-      });
-
-      const { accessToken, refreshToken, user } = res.data.data;
-
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      dispatch(setUser(user));
-
-      console.log("Login thành công:", user);
-    } catch (error: any) {
-      console.log(error.response?.data?.message || error.message);
-    }
-  };
+  useEffect(() => {
+    const fetchVideos = async () => {
+      const res = await getAllVideos();
+      setVideos(res.data.data);
+    };
+    fetchVideos();
+  }, []);
 
   return (
-    <main>
-      <Link href="/feed" className="text-xl text-red-600 font-bold">
-        Feed
-      </Link>{" "}
-      <br />
-      <button onClick={handleLogin}>Test Login</button>
-    </main>
+    <div className="min-h-screen">
+      <Sidebar />
+      <Header />
+      <main className="ml-60 mt-16 min-h-[calc(100vh - 64px)]">
+        <div className="h-[calc(100vh-64px)] snap-y snap-mandatory overflow-y-auto">
+          {videos.map((video) => (
+            <div
+              key={video.id}
+              className="flex min-h-[calc(100vh-64px)] snap-center items-center justify-center"
+            >
+              <VideoCard
+                video={video}
+                followingUsers={followingUsers.includes(video.userId)}
+                onFollowChange={(userId, following) => {
+                  setFollowingUsers((prev) => {
+                    if (following) {
+                      return prev.includes(userId) ? prev : [...prev, userId];
+                    }
+
+                    return prev.filter((id) => id !== userId);
+                  });
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }

@@ -10,7 +10,7 @@ import { searchVideos } from "@/api/video";
 
 export default function Header() {
   const router = useRouter();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, isLoggedIn } = useSelector((state: RootState) => state.auth);
   const [query, setQuery] = useState("");
   const [searchRe, setSearchRe] = useState([]);
   const handleSearch = async () => {
@@ -38,26 +38,36 @@ export default function Header() {
 
       {/* User */}
       <div className="ml-6 flex items-center gap-4">
-        <button
-          onClick={() => router.push(`/profile/${user?.id}`)}
-          className="flex items-center gap-2"
-        >
-          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gray-200">
-            {user?.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.username}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span>👤</span>
-            )}
-          </div>
+        {isLoggedIn ? (
+          <>
+            <button
+              onClick={() => router.push(`/profile/${user?.id}`)}
+              className="flex items-center gap-2"
+            >
+              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gray-200">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.username}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>👤</span>
+                )}
+              </div>
 
-          <span className="font-medium">{user?.username}</span>
-        </button>
-
-        <LogoutButton />
+              <span className="font-medium">{user?.username}</span>
+            </button>
+            <LogoutButton />
+          </>
+        ) : (
+          <button
+            className="btn-primary cursor-pointer"
+            onClick={() => router.push("/login")}
+          >
+            Đăng nhập
+          </button>
+        )}
       </div>
     </header>
   );

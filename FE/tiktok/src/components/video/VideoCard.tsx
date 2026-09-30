@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { checkFollowing, toggleFollow } from "@/api/user";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 interface VideoCardProps {
   video: Video;
   followingUsers: boolean;
@@ -22,18 +22,23 @@ export default function VideoCard({
   const [liked, setLiked] = useState(video.isLiked);
   const [showComments, setShowComments] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, isLoggedIn } = useSelector((state: RootState) => state.auth);
   const [likeCount, setLikeCount] = useState(video.likeCount);
   const viewedRef = useRef(false);
   const [viewCount, setViewCount] = useState(video.views);
   const [isPlay, setIsPlay] = useState(false);
   const [countComments, setCountComments] = useState(video.commentCount);
+  const router = useRouter();
   useEffect(() => {
     setLiked(video.isLiked);
     setCountComments(video.commentCount);
   }, [user, video.isLiked, video.commentCount]);
   const handleLike = async () => {
     try {
+      if (!isLoggedIn) {
+        router.push("/login");
+        return;
+      }
       await likeVideo(video.id).then((res) => {
         setLiked(res.data.liked);
         setLikeCount(res.data.likeCount);
@@ -56,7 +61,6 @@ export default function VideoCard({
           viewVideo(video.id).then((res) => {
             viewedRef.current = true;
             setViewCount(res.data.views);
-            console.log(res.data.views);
           });
         } else {
           element.pause();
@@ -77,6 +81,10 @@ export default function VideoCard({
 
   const handleFollow = async () => {
     try {
+      if (!isLoggedIn) {
+        router.push("/login");
+        return;
+      }
       const res = await toggleFollow(video.userId);
       onFollowChange(video.userId, res.data.following);
     } catch (error: any) {

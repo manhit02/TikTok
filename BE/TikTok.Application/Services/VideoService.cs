@@ -14,32 +14,9 @@ public class VideoService : IVideoService
         _videoLikeRepository = videoLikeRepository;
     }
 
-    public async Task<List<VideoDto>> GetAllAsync(Guid? userId)
+    public async Task<List<VideoDto>> GetAllAsync(int page, int limit)
     {
-        var videos = await _videoRepository.GetAllAsync();
-        var result = new List<VideoDto>();
-        foreach (var video in videos)
-        {
-
-            result.Add(new VideoDto
-            {
-                Id = video.Id,
-                VideoUrl = video.VideoUrl,
-                Caption = video.Caption,
-                Views = video.Views,
-                UserId = video.UserId,
-                Username = video.User.Username,
-                Avatar = video.User.Avatar,
-                CreatedAt = video.CreatedAt,
-                LikeCount = await _videoLikeRepository.CountAsync(video.Id),
-                IsLiked = userId.HasValue &&
-          await _videoLikeRepository.GetAsync(
-              video.Id,
-              userId.Value
-          ) != null
-            });
-        }
-        return result;
+        return await _videoRepository.GetAllAsync(page, limit);
 
     }
 
@@ -125,8 +102,10 @@ public class VideoService : IVideoService
     }
     public async Task<List<VideoDto>> GetFeedAsync(Guid? currentUserId, int page, int limit)
     {
-
-
         return await _videoRepository.GetFeedAsync(currentUserId, page, limit);
+    }
+    public async Task<List<VideoDto>> GetVideosByUserIdAsync(Guid userId, int page, int limit)
+    {
+        return await _videoRepository.GetVideosByUserIdAsync(userId, page, limit);
     }
 }

@@ -51,13 +51,13 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<Follow>()
             .HasOne(x => x.Follower)
-            .WithMany()
+            .WithMany(x => x.Following)
             .HasForeignKey(x => x.FollowerId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Follow>()
             .HasOne(x => x.Following)
-            .WithMany()
+            .WithMany(x => x.Followers)
             .HasForeignKey(x => x.FollowingId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -66,7 +66,7 @@ public class AppDbContext : DbContext
             .IsUnique();
         modelBuilder.Entity<Profile>()
             .HasOne(x => x.User)
-            .WithOne()
+           .WithOne(x => x.Profile)
             .HasForeignKey<Profile>(x => x.UserId);
 
     }

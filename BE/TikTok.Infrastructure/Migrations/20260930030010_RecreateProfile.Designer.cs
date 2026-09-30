@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TikTok.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TikTok.Infrastructure.Data;
 namespace TikTok.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260930030010_RecreateProfile")]
+    partial class RecreateProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -219,13 +222,13 @@ namespace TikTok.Infrastructure.Migrations
             modelBuilder.Entity("Follow", b =>
                 {
                     b.HasOne("TikTok.Domain.Entities.User", "Follower")
-                        .WithMany("Following")
+                        .WithMany()
                         .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TikTok.Domain.Entities.User", "Following")
-                        .WithMany("Followers")
+                        .WithMany()
                         .HasForeignKey("FollowingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -257,7 +260,7 @@ namespace TikTok.Infrastructure.Migrations
             modelBuilder.Entity("TikTok.Domain.Entities.Profile", b =>
                 {
                     b.HasOne("TikTok.Domain.Entities.User", "User")
-                        .WithOne("Profile")
+                        .WithOne()
                         .HasForeignKey("TikTok.Domain.Entities.Profile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -304,15 +307,6 @@ namespace TikTok.Infrastructure.Migrations
                     b.Navigation("User");
 
                     b.Navigation("Video");
-                });
-
-            modelBuilder.Entity("TikTok.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Followers");
-
-                    b.Navigation("Following");
-
-                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("TikTok.Domain.Entities.Video", b =>

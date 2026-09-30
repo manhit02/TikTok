@@ -3,18 +3,23 @@
 import Image from "next/image";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getUser, getFollowing, getFollowers } from "@/api/user";
-import { Users, Follow } from "@/types/user";
+import { getFollowing, getFollowers } from "@/api/user";
+import { getProfile, updateProfile } from "@/api/profile";
+import { Follow } from "@/types/user";
+import { Profile } from "@/types/profile";
 import { popupST } from "@/components/popup/popupST";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
-import { getUserVideos } from "@/api/video";
+import { getUserVideos } from "@/api/profile";
 import { Video } from "@/types/video";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const { uid } = useParams();
   const userMe = useSelector((state: RootState) => state.auth.user);
-  const [user, setUser] = useState<Users>();
+  const { isLoggedIn } = useSelector((state: RootState) => state.auth);
+
+  const [profile, setProfile] = useState<Profile>();
   const [userVideos, setUserVideos] = useState<Video[]>([]);
   const [following, setFollowing] = useState<Follow[]>([]);
   const [follower, setFollower] = useState<Follow[]>([]);
@@ -26,13 +31,13 @@ export default function ProfilePage() {
         if (path === "/profile/me") {
           if (!userMe?.id) return;
 
-          const res = await getUser(userMe.id);
-          setUser(res.data.data);
+          const res = await getProfile(userMe.id);
+          setProfile(res.data.data);
         } else {
           if (!uid) return;
 
-          const res = await getUser(uid as string);
-          setUser(res.data.data);
+          const res = await getProfile(uid as string);
+          setProfile(res.data.data);
         }
       } catch (error) {
         console.log(error);
@@ -59,28 +64,27 @@ export default function ProfilePage() {
   }, [path, uid, userMe]);
   const handleShowFollowing = async () => {
     try {
-      if (!user?.id) return;
-      const res = await getFollowing(userId);
-      const data = res.data.data;
-      setFollowing(data);
+      if (!profile?.id) return;
 
+      const data = profile.following;
       popupST.open(
         <>
           <div className="flex flex-col">
-            {data &&
+            {data && data.length > 0 ? (
               data.map((item) => (
                 <div key={item.id} className="flex">
                   <Image
-                    src={item.follower.avatar || "/avatar-default.png"}
+                    src={item.avatar || "/avatar-default.png"}
                     alt="avatar"
                     width={50}
                     height={50}
                   />
-                  <p className="dark:text-white text-white">
-                    {item.follower.username}
-                  </p>
+                  <p className="dark:text-white text-white">{item.username}</p>
                 </div>
-              ))}
+              ))
+            ) : (
+              <p className="dark:text-white text-white">Không có follow</p>
+            )}
           </div>
         </>,
       );
@@ -90,25 +94,27 @@ export default function ProfilePage() {
   };
   const handleShowFollower = async () => {
     try {
-      if (!user?.id) return;
-      const res = await getFollowers(userId);
-      const data = res.data.data;
-      setFollower(data);
+      if (!profile?.id) return;
+      const data = profile.followers;
+
       popupST.open(
         <>
           <div className="flex flex-col">
-            {data &&
+            {data && data.length > 0 ? (
               data.map((item) => (
                 <div key={item.id} className="flex">
                   <Image
-                    src={item.follower.avatar}
+                    src={item.avatar}
                     alt="avatar"
                     width={50}
                     height={50}
                   />
-                  <p>{item.follower.username}</p>
+                  <p>{item.username}</p>
                 </div>
-              ))}
+              ))
+            ) : (
+              <p>Không có follow</p>
+            )}
           </div>
         </>,
       );
@@ -124,7 +130,7 @@ export default function ProfilePage() {
           {/* Avatar */}
           <div className="relative h-32 w-32 overflow-hidden rounded-full bg-gray-200">
             <Image
-              src="/avatar-default.png"
+              src={profile?.avatar || "/avatar-default.png"}
               alt="avatar"
               fill
               className="object-cover"
@@ -132,13 +138,13 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex-1">
-            <h1 className="text-2xl font-bold">@{user?.username}</h1>
+            <h1 className="text-2xl font-bold">@{profile?.displayName}</h1>
 
-            <p className="mt-1 text-lg font-semibold">{user?.username}</p>
+            {/* <p className="mt-1 text-lg font-semibold">{profile?.username}</p> */}
 
             <div className="mt-5 flex gap-8">
               <div onClick={handleShowFollowing} className="cursor-pointer">
-                <p className="font-bold">{user?.following || 0}</p>
+                <p className="font-bold">{profile?.following.length || 0}</p>
                 <p className="text-sm text-gray-500">Đang follow</p>
               </div>
 
@@ -148,26 +154,27 @@ export default function ProfilePage() {
                 }}
                 className="cursor-pointer"
               >
-                <p className="font-bold">{user?.followers || 0}</p>
+                <p className="font-bold">{profile?.followers.length || 0}</p>
                 <p className="text-sm text-gray-500">Người follow</p>
               </div>
 
               <div>
-                <p className="font-bold">{user?.likeCount || 0}</p>
+                <p className="font-bold">{profile?.totalLikes || 0}</p>
                 <p className="text-sm text-gray-500">Lượt thích</p>
               </div>
             </div>
-
-            <button className="mt-5 rounded-md border px-6 py-2 font-semibold hover:bg-gray-100 dark:hover:bg-gray-900">
-              Chỉnh sửa hồ sơ
-            </button>
+            {isLoggedIn && (
+              <button className="mt-5 rounded-md border px-6 py-2 font-semibold hover:bg-gray-100 dark:hover:bg-gray-900">
+                Chỉnh sửa hồ sơ
+              </button>
+            )}
           </div>
         </div>
 
         {/* Bio */}
         <div className="mt-8">
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            {user?.bio || "Không có bio"}
+            {profile?.bio || "Không có bio"}
           </p>
         </div>
 
@@ -183,7 +190,12 @@ export default function ProfilePage() {
         {/* Videos */}
         <div className="mt-4 grid grid-cols-3 gap-1">
           {userVideos?.map((video) => (
-            <div
+            <Link
+              href={
+                uid === userMe?.id
+                  ? `/profile/videos/me?videoId=${video.id}`
+                  : `/profile/videos/${uid}?videoId=${video.id}`
+              }
               key={video.id}
               className="aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-gray-800"
             >
@@ -191,7 +203,7 @@ export default function ProfilePage() {
                 src={video.videoUrl}
                 className="h-full w-full object-cover"
               />
-            </div>
+            </Link>
           ))}
         </div>
       </div>
