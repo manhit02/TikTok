@@ -10,15 +10,11 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard>
-      <div className="min-h-screen">
-        <Sidebar />
-        <Header />
+    <div className="min-h-screen">
+      <Sidebar />
+      <Header />
 
-        <main className="ml-60 mt-16 min-h-[calc(100vh - 64px)]">
-          {children}
-        </main>
-      </div>
-    </AuthGuard>
+      <main className="ml-60 mt-16 min-h-[calc(100vh - 64px)]">{children}</main>
+    </div>
   );
 }

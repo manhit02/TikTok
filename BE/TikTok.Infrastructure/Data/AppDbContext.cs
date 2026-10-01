@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Follow> Follows => Set<Follow>();
     public DbSet<Profile> Profile => Set<Profile>();
+    public DbSet<Search> Search => Set<Search>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,6 +69,15 @@ public class AppDbContext : DbContext
             .HasOne(x => x.User)
            .WithOne(x => x.Profile)
             .HasForeignKey<Profile>(x => x.UserId);
+
+        modelBuilder.Entity<Search>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Searchs)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Search>()
+            .HasIndex(x => new { x.UserId, x.CreatedAt });
 
     }
 }

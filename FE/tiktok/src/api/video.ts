@@ -50,6 +50,3 @@ export const updateComment = (videoId:String,commentId: string, content: string)
     return api.put(`/videos/${videoId}/comments/${commentId}`, { content });
 };
 
-export const searchVideos=(query:string,page=1,limit=10)=>{
-    return api.get<ApiResponse<Video[]>>(`/videos/search`, {params: {page, limit,q:query}});
-};

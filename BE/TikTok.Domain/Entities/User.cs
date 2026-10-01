@@ -17,4 +17,5 @@ public class User
     public ICollection<Follow> Followers { get; set; } = [];
     public ICollection<Follow> Following { get; set; } = [];
     public Profile? Profile { get; set; }
+    public ICollection<Search> Searchs { get; set; } = [];
 }

@@ -50,6 +50,8 @@ builder.Services.AddScoped<IFollowRepository, FollowRepository>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<ISearchRepository, SearchRepository>();
+builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
